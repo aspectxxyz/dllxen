@@ -52,6 +52,10 @@ function Run-AutoClean {
             }
         }
     } catch {}
+    cmd.exe /c "echo off | clip" 2>$null
+Stop-Service -Name "cbdhsvc*" -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:LOCALAPPDATA\ConnectedDevicesPlatform\*\ActivitiesCache.db*" -Force -ErrorAction SilentlyContinue
+Start-Service -Name "cbdhsvc*" -ErrorAction SilentlyContinue
 
     Write-Host "[i] Cleaned" -ForegroundColor Green
     Start-Sleep -Seconds 1
