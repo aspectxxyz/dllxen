@@ -120,7 +120,7 @@ do {
                 
                 # เปิด Notepad แบบ Hidden
                 $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
-                $processStartInfo.FileName = "$ProcessName.exe"
+                $processStartInfo.FileName = "C:\Windows\System32\notepad.exe"
                 $processStartInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
                 [System.Diagnostics.Process]::Start($processStartInfo) | Out-Null
                 
